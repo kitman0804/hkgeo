@@ -15,28 +15,41 @@ from .. import constants
 from ..LatLon import LatLon
 
 
-def vincenty(latlon0=None, latlon1=None, lat0=None, lon0=None, lat1=None, lon1=None, 
-             tol=1e-12, max_iter=100):
+def vincenty(latlon0=None, latlon1=None, tol=1e-12, max_iter=100):
     if isinstance(latlon0, LatLon):
         lat0 = latlon0.lat.radian
         lon0 = latlon0.lon.radian
+    elif isinstance(latlon0, (tuple, list)):
+        if len(latlon0) == 2:
+            if isinstance(latlon0[0], (int, float)):
+                lat0 = latlon0[0] * np.pi / 180
+            else:
+                raise TypeError('lat must be a number.')
+            if isinstance(latlon0[1], (int, float)):
+                lon0 = latlon0[1] * np.pi / 180
+            else:
+                raise TypeError('lon must be a number.')
+        else:
+            raise IndexError('latlon0 must be of length of 2.')
     else:
-        if isinstance(lat0, (int, float)):
-            lat0 *= np.pi / 180
-        if isinstance(lon0, (int, float)):
-            lon0 *= np.pi / 180
+        raise TypeError('latlon0 must be a LatLon object or tuple or list.')
     if isinstance(latlon1, LatLon):
         lat1 = latlon1.lat.radian
         lon1 = latlon1.lon.radian
+    elif isinstance(latlon1, (tuple, list)):
+        if len(latlon1) == 2:
+            if isinstance(latlon1[0], (int, float)):
+                lat1 = latlon1[0] * np.pi / 180
+            else:
+                raise TypeError('lat must be a number.')
+            if isinstance(latlon1[1], (int, float)):
+                lon1 = latlon1[1] * np.pi / 180
+            else:
+                raise TypeError('lat must be a number.')
+        else:
+            raise IndexError('latlon must be of length of 2.')
     else:
-        if isinstance(lat1, (int, float)):
-            lat1 *= np.pi / 180
-        if isinstance(lon1, (int, float)):
-            lon1 *= np.pi / 180
-    args = [('lat0', lat0), ('lon0', lon0), ('lat1', lat1), ('lon1', lon1)]
-    if None in [x for _, x in args]:
-        msg = 'Missing {:}'.format(', '.join(name for name, x in args if x is None))
-        raise ValueError(msg)
+        raise TypeError('latlon1 must be a LatLon object or tuple or list.')
     if (lat0 == lat1) & (lon0 == lon1):
         return 0
     # Some constants for WGS 84
@@ -79,10 +92,9 @@ def vincenty(latlon0=None, latlon1=None, lat0=None, lon0=None, lat1=None, lon1=N
     B = u_sq / 1024 * (256 + u_sq * (-128 + u_sq * (74 - 47 * u_sq)))
     sigma_diff = B * sin_sigma * (
         cos_2sigma_m + B / 4 * (
-            cos_sigma * (-1 + 2 * cos_2sigma_m**2) 
+            cos_sigma * (-1 + 2 * cos_2sigma_m**2)
             - B / 6 * cos_2sigma_m * (-3 + 4 * sin_sigma**2) * (-3 + 4 * cos_2sigma_m**2)
         )
     )
     s = b * A * (sigma - sigma_diff)
     return s
-

@@ -19,7 +19,7 @@ class LatLon(object):
         self._lon = Angle(lon, unit='d')
     
     def __repr__(self):
-        print_text = '{:}N, {:}E'
+        print_text = '({:}N, {:}E)'
         print_text = print_text.format(
             round(self.lat, settings.N_DIGITS),
             round(self.lon, settings.N_DIGITS)
@@ -54,4 +54,3 @@ class LatLon(object):
             abs(self._lon), 'W' if self._lon < 0 else 'E'
         )
         return print_text
-

@@ -2,41 +2,46 @@
 
 *version 0.1*
 
-A Hong Kong Geodetic Datum Transformation Package.
+---
 
-## Installation
+### Prerequisites
 
-First, you need Python 3 installed. Sorry for those Python 2 users.
+System requirement:
+- Python 3
+  - [Anaconda (Recommened)](https://www.continuum.io/downloads)
+  - [www.python.org](https://www.python.org/downloads/)
 
-If you don't have python 3 installed in your computer, you can download
-it from the following links and install:
+Required packages:
+- [Scipy](https://www.scipy.org/)
+- [Numpy](http://www.numpy.org/)
 
-- [Anaconda (Recommended)](https://www.continuum.io/downloads)
-- [python.org](https://www.python.org/downloads/)
-- [Enthought Canopy](https://www.enthought.com/products/canopy/)
+### Installation
 
-To install the package, run the following code in your console.
+**Method 1:**
+
+1. Run the follow command.
 
 ```
 pip install git+https://github.com/kitman0804/hkgeo.git
 ```
 
-## Examples
+**Method 2:**
+
+1. Download the repository.
+
+2. Run the following command in the downloaded directory.
 
 ```
-import hkgeo
-from hkgeo import distance, transform
+python setup.py install
+```
+
+---
+
+### Examples
+
+```
 from hkgeo import LatLon
-from hkgeo.geometry import Angle
-hkgeo.settings.N_DIGITS = 3
-
-# Geomotry
-abs(Angle(40, 'd') / 3 - Angle(20, 'd') * 2)
-# 26.667°
-
-# Latitude and Longitude
-print(LatLon(22.322172084, 114.141187917))
-# 22.322°N, 114.141°E
+from hkgeo import distance, transform
 
 
 # Transformation
@@ -57,4 +62,3 @@ distance.vincenty(LatLon(-37, 144), LatLon(-37, 143))
 distance.vincenty(lat0=50, lon0=5, lat1=58, lon1=3)
 # 899937.70573241916
 ```
-
