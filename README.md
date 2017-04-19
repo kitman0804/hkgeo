@@ -59,6 +59,6 @@ transform.wgs84_to_hk80g(22.322172084, 114.141187917)
 distance.vincenty(LatLon(-37, 144), LatLon(-37, 143))
 # 89011.262537100483
 
-distance.vincenty(lat0=50, lon0=5, lat1=58, lon1=3)
+distance.vincenty((50, 5), (58, 3))
 # 899937.70573241916
 ```
