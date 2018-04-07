@@ -11,45 +11,13 @@ http://www.ga.gov.au/scientific-topics/positioning-navigation/geodesy/geodetic-t
 
 import numpy as np
 
+from ._utils import _get_lat_lon
 from .. import constants
-from ..LatLon import LatLon
 
 
 def vincenty(latlon0=None, latlon1=None, tol=1e-12, max_iter=100):
-    if isinstance(latlon0, LatLon):
-        lat0 = latlon0.lat.radian
-        lon0 = latlon0.lon.radian
-    elif isinstance(latlon0, (tuple, list)):
-        if len(latlon0) == 2:
-            if isinstance(latlon0[0], (int, float)):
-                lat0 = latlon0[0] * np.pi / 180
-            else:
-                raise TypeError('lat must be a number.')
-            if isinstance(latlon0[1], (int, float)):
-                lon0 = latlon0[1] * np.pi / 180
-            else:
-                raise TypeError('lon must be a number.')
-        else:
-            raise IndexError('latlon0 must be of length of 2.')
-    else:
-        raise TypeError('latlon0 must be a LatLon object or tuple or list.')
-    if isinstance(latlon1, LatLon):
-        lat1 = latlon1.lat.radian
-        lon1 = latlon1.lon.radian
-    elif isinstance(latlon1, (tuple, list)):
-        if len(latlon1) == 2:
-            if isinstance(latlon1[0], (int, float)):
-                lat1 = latlon1[0] * np.pi / 180
-            else:
-                raise TypeError('lat must be a number.')
-            if isinstance(latlon1[1], (int, float)):
-                lon1 = latlon1[1] * np.pi / 180
-            else:
-                raise TypeError('lat must be a number.')
-        else:
-            raise IndexError('latlon must be of length of 2.')
-    else:
-        raise TypeError('latlon1 must be a LatLon object or tuple or list.')
+    lat0, lon0 = _get_lat_lon(latlon0)
+    lat1, lon1 = _get_lat_lon(latlon1)
     if (lat0 == lat1) & (lon0 == lon1):
         return 0
     # Some constants for WGS 84

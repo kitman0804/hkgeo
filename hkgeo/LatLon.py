@@ -54,3 +54,6 @@ class LatLon(object):
             abs(self._lon), 'W' if self._lon < 0 else 'E'
         )
         return print_text
+    
+    def to_tuple(self):
+        return (self.lat.degree, self.lon.degree)
