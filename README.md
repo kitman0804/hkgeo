@@ -1,6 +1,9 @@
 ## hkgeo
 
-*version 0.1*
+*version 0.1.1*
+
+- Coordinates coversion (HK80, HK80G, WGS84).
+- OSM data download through [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API).
 
 ---
 
@@ -14,6 +17,8 @@ System requirement:
 Required packages:
 - [Scipy](https://www.scipy.org/)
 - [Numpy](http://www.numpy.org/)
+- [requests](http://docs.python-requests.org/en/master/)
+- [json](https://docs.python.org/3.6/library/json.html) (Python standard library)
 
 ### Installation
 
