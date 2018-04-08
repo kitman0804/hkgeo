@@ -1,6 +1,7 @@
 """
 Haversine Formula
 -----------------
+Calculate distance between two points.
 Reference:
 http://andrew.hedges.name/experiments/haversine/
 https://en.wikipedia.org/wiki/Haversine_formula
@@ -8,8 +9,8 @@ https://en.wikipedia.org/wiki/Haversine_formula
 
 import numpy as np
 
-from ._utils import _get_lat_lon
 from .. import constants
+from ..LatLon import LatLon
 
 
 # Haversine Function
@@ -24,9 +25,16 @@ def inv_hav(h):
 
 
 # Haversine Formula
-def haversine(latlon0=None, latlon1=None):
-    lat0, lon0 = _get_lat_lon(latlon0)
-    lat1, lon1 = _get_lat_lon(latlon1)
+def haversine(latlon0, latlon1):
+    if not isinstance(latlon0, LatLon):
+        latlon0 = LatLon(*latlon0)
+    if not isinstance(latlon1, LatLon):
+        latlon1 = LatLon(*latlon1)
+    
+    lat0 = latlon0.lat.radian
+    lon0 = latlon0.lon.radian
+    lat1 = latlon1.lat.radian
+    lon1 = latlon1.lon.radian
     d_lat = lat1 - lat0
     d_lon = lon1 - lon0
     h = hav(d_lat) + np.cos(lat0) * np.cos(lat1) * hav(d_lon)

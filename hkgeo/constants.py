@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
-
 import numpy as np
 
 
 WGS84_PARAMS = {
+    'semi_major_axis': 6378137.0, # meters
+    'semi_minor_axis': (1 - 1 / 298.257223563) * 6378137.0,  # meters
+    'invserse_flattening': 1 / 298.257223563, 
     'a': 6378137.0,
     'f': 1 / 298.257223563,
 }

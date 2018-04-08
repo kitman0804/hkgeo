@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import numpy as np
 from .. import settings
 
@@ -10,24 +8,32 @@ class Angle(object):
     ----------
     value: float, default=0
         Angle value.
-    unit: str, default='d'
-        Unit of angle, 'd' for degree, 'r' for radian.
+    unit: str, default='deg'
+        Unit of angle.
+            'deg': degree
+            'rad': radian
     """
     
-    def __init__(self, value, unit='d'):
-        unit = str(unit[0]).lower()
+    def __init__(self, value, unit='deg'):
+        unit = str(unit).lower()
         if not isinstance(value, (float, int, np.integer, np.floating)):
             raise TypeError('value must be a float/int.')
-        if unit not in 'dr':
-            raise ValueError('unit must be either \'d\' (degree) or \'r\' (radian)')
-        self._value = value * (np.pi / 180)**(unit == 'd')
-        self._unit = unit
+        if unit == 'rad':
+            self._value = value
+            self._unit = unit
+        elif unit == 'deg':
+            self._value = value * np.pi / 180
+            self._unit = unit
+        else:
+            raise ValueError('unit must be either \'deg\' (degree) or \'rad\' (radian).')
     
     def __repr__(self):
-        print_text = '{:}{:}'.format(
-            round(self._value * (180 / np.pi) ** (self._unit == 'd'), settings.N_DIGITS),
-            {'r': 'r', 'd': '\u00b0'}.get(self._unit)
-        )
+        if self._unit == 'rad':
+            print_text = '{:}r'.format(
+                round(self.radian, settings.N_DIGITS))
+        elif self._unit == 'deg':
+            print_text = '{:}\u00b0'.format(
+                round(self.degree, settings.N_DIGITS))
         return print_text
     
     @property
@@ -39,12 +45,34 @@ class Angle(object):
         return self._unit
     
     @property
+    def radian(self):
+        return self._value
+    
+    @property
     def degree(self):
         return self._value * (180 / np.pi)
     
     @property
-    def radian(self):
-        return self._value
+    def dms(self):
+        d = np.trunc(self._value)
+        m = np.trunc((self._value - d) * 60)
+        s = (self._value - d - m / 60) * 3600
+        return (d, m, s)
+    
+    def to_rad(self):
+        self._unit = 'rad'
+    
+    def to_deg(self):
+        self._unit = 'deg'
+    
+    def _change_unit(self, unit):
+        unit = str(unit).lower()
+        if unit == 'rad':
+            self.to_rad()
+        elif unit == 'deg':
+            self.to_deg()
+        else:
+            raise ValueError('No such unit {:}.'.format(unit))
     
     # Comparison functions
     def __lt__(self, other):
@@ -53,8 +81,10 @@ class Angle(object):
         elif isinstance(other, (float, int)):
             return self._value < other
         else:
-            msg = 'unorderable types: {:}() < {:}().'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unorderable types: {:}() {:} {:}().'.format(
+                '<', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __le__(self, other):
@@ -63,8 +93,10 @@ class Angle(object):
         elif isinstance(other, (float, int)):
             return self._value <= other
         else:
-            msg = 'unorderable types: {:}() <= {:}().'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unorderable types: {:}() {:} {:}().'.format(
+                '<=', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __eq__(self, other):
@@ -73,8 +105,10 @@ class Angle(object):
         elif isinstance(other, (float, int)):
             return self._value == other
         else:
-            msg = 'unorderable types: {:}() == {:}().'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unorderable types: {:}() {:} {:}().'.format(
+                '==', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __ne__(self, other):
@@ -83,8 +117,10 @@ class Angle(object):
         elif isinstance(other, (float, int)):
             return self._value != other
         else:
-            msg = 'unorderable types: {:}() != {:}().'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unorderable types: {:}() {:} {:}().'.format(
+                '!=', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __gt__(self, other):
@@ -93,8 +129,10 @@ class Angle(object):
         elif isinstance(other, (float, int)):
             return self._value > other
         else:
-            msg = 'unorderable types: {:}() > {:}().'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unorderable types: {:}() {:} {:}().'.format(
+                '>', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __ge__(self, other):
@@ -103,94 +141,100 @@ class Angle(object):
         elif isinstance(other, (float, int)):
             return self._value >= other
         else:
-            msg = 'unorderable types: {:}() >= {:}().'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unorderable types: {:}() {:} {:}().'.format(
+                '>=', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     # Mathematical operations
     def __add__(self, other):
         if isinstance(other, type(self)):
-            if self._unit == 'd':
-                return type(self)(self.degree + other.degree, unit='d')
-            else:
-                return type(self)(self.radian + other.radian, unit='r')
+            a = type(self)(self.radian + other.radian, unit='rad')
+            a._change_unit(self.unit)
+            return a
         else:
-            msg = 'unsupported operand type(s) for +: \'{:}\' and \'{:}\'.'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unsupported operand type(s) for {:}: \'{:}\' and \'{:}\'.'.format(
+                '+', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __sub__(self, other):
         if isinstance(other, type(self)):
-            if self._unit == 'd':
-                return type(self)(self.degree - other.degree, unit='d')
-            else:
-                return type(self)(self.radian - other.radian, unit='r')
+            a = type(self)(self.radian - other.radian, unit='rad')
+            a._change_unit(self.unit)
+            return a
         else:
-            msg = 'unsupported operand type(s) for -: \'{:}\' and \'{:}\'.'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unsupported operand type(s) for {:}: \'{:}\' and \'{:}\'.'.format(
+                '-', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __mul__(self, other):
         if isinstance(other, (float, int)):
-            if self._unit == 'd':
-                return type(self)(self.degree * other, unit='d')
-            else:
-                return type(self)(self.radian * other, unit='r')
+            a = type(self)(self.radian * other, unit='rad')
+            a._change_unit(self.unit)
+            return a
         else:
-            msg = 'unsupported operand type(s) for *: \'{:}\' and \'{:}\'.'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unsupported operand type(s) for {:}: \'{:}\' and \'{:}\'.'.format(
+                '*', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __truediv__(self, other):
         if isinstance(other, (float, int)):
-            if self._unit == 'd':
-                return type(self)(self.degree / other, unit='d')
-            else:
-                return type(self)(self.radian / other, unit='r')
+            a = type(self)(self.radian / other, unit='rad')
+            a._change_unit(self.unit)
+            return a
         else:
-            msg = 'unsupported operand type(s) for /: \'{:}\' and \'{:}\'.'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unsupported operand type(s) for {:}: \'{:}\' and \'{:}\'.'.format(
+                '/', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __floordiv__(self, other):
         if isinstance(other, (float, int)):
-            if self._unit == 'd':
-                return type(self)(self.degree // other, unit='d')
-            else:
-                return type(self)(self.radian // other, unit='r')
+            a = type(self)(self.radian // other, unit='rad')
+            a._change_unit(self.unit)
+            return a
         else:
-            msg = 'unsupported operand type(s) for //: \'{:}\' and \'{:}\'.'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unsupported operand type(s) for {:}: \'{:}\' and \'{:}\'.'.format(
+                '//', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __mod__(self, other):
         if isinstance(other, (float, int)):
-            if self._unit == 'd':
-                return type(self)(self.degree % other, unit='d')
-            else:
-                return type(self)(self.radian % other, unit='r')
+            a = type(self)(self.radian % other, unit='rad')
+            a._change_unit(self.unit)
+            return a
         else:
-            msg = 'unsupported operand type(s) for %: \'{:}\' and \'{:}\'.'
-            msg = msg.format(type(self).__name__, type(other).__name__)
+            msg = 'unsupported operand type(s) for {:}: \'{:}\' and \'{:}\'.'.format(
+                '%', 
+                type(self).__name__, 
+                type(other).__name__)
             raise TypeError(msg)
     
     def __neg__(self):
-        if self._unit == 'd':
-            return type(self)(-self.degree, unit='d')
-        else:
-            return type(self)(-self.radian, unit='r')
+        a = type(self)(-self.radian, unit='rad')
+        a._change_unit(self.unit)
+        return a
     
     def __abs__(self):
-        if self._unit == 'd':
-            return type(self)(abs(self.degree), unit='d')
-        else:
-            return type(self)(abs(self.radian), unit='r')
+        a = type(self)(abs(self.radian), unit='rad')
+        a._change_unit(self.unit)
+        return a
     
     def __round__(self, n=None):
-        if self._unit == 'd':
-            return type(self)(round(self.degree, n), 'd')
-        else:
-            return type(self)(round(self.radian, n), 'r')
+        if self._unit == 'rad':
+            return type(self)(round(self.radian, n), unit='rad')
+        elif self._unit == 'deg':
+            return type(self)(round(self.degree, n), unit='deg')
     
     # Trigonometric functions
     def sin(self):
@@ -216,4 +260,14 @@ class Angle(object):
     def tanh(self):
         x = self._value
         return np.tanh(x)
+
+
+class Radian(Angle):
+    def __init__(self, value):
+        super().__init__(value, unit='rad')
+
+
+class Degree(Angle):
+    def __init__(self, value):
+        super().__init__(value, unit='deg')
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import numpy as np
 
 from .hk80g_to_hk80 import hk80g_to_hk80

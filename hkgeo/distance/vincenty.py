@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
-
 """
-Vincenty's formulae
-
+Vincenty's Formulae
+-------------------
+Calculate distance between two points.
 Reference:
 https://en.wikipedia.org/wiki/Vincenty%27s_formulae
 http://www.movable-type.co.uk/scripts/latlong-vincenty.html
@@ -11,22 +10,33 @@ http://www.ga.gov.au/scientific-topics/positioning-navigation/geodesy/geodetic-t
 
 import numpy as np
 
-from ._utils import _get_lat_lon
 from .. import constants
+from ..LatLon import LatLon
 
 
-def vincenty(latlon0=None, latlon1=None, tol=1e-12, max_iter=100):
-    lat0, lon0 = _get_lat_lon(latlon0)
-    lat1, lon1 = _get_lat_lon(latlon1)
-    if (lat0 == lat1) & (lon0 == lon1):
+def vincenty(latlon0, latlon1, tol=1e-12, max_iter=100):
+    if not isinstance(latlon0, LatLon):
+        latlon0 = LatLon(*latlon0)
+    if not isinstance(latlon1, LatLon):
+        latlon1 = LatLon(*latlon1)
+    
+    lat0 = latlon0.lat.radian
+    lon0 = latlon0.lon.radian
+    lat1 = latlon1.lat.radian
+    lon1 = latlon1.lon.radian
+    
+    if lat0 == lat1 and lon0 == lon1:
         return 0
+    
     # Some constants for WGS 84
     a, f = constants.WGS84_PARAMS.get('a'), constants.WGS84_PARAMS.get('f')
     b = (1 - f) * a
     
-    tan_u1, tan_u2 = (1 - f) * np.tan(lat0), (1 - f) * np.tan(lat1)
-    cos_u1, cos_u2 = 1 / np.sqrt(1 + tan_u1**2), 1 / np.sqrt(1 + tan_u2**2)
-    sin_u1, sin_u2 = tan_u1 * cos_u1, tan_u2 * cos_u2
+    # Reduced latitude
+    u1 = np.arctan((1 - f) * np.tan(lat0))
+    u2 = np.arctan((1 - f) * np.tan(lat1))
+    sin_u1, cos_u1 = np.sin(u1), np.cos(u1)
+    sin_u2, cos_u2 = np.sin(u2), np.cos(u2)
     delta_lon = lon1 - lon0
     lambda0, lambda1 = (delta_lon,) * 2
     i = 0
@@ -37,21 +47,25 @@ def vincenty(latlon0=None, latlon1=None, tol=1e-12, max_iter=100):
         lambda0 = lambda1
         sin_lambda, cos_lambda = np.sin(lambda0), np.cos(lambda0)
         # sigma
-        sin_sigma = np.sqrt((cos_u2 * sin_lambda)**2 + (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda)**2)
-        cos_sigma = sin_u1 * sin_u2 + cos_u1 * cos_u2 * cos_lambda
+        sin_sigma = np.sqrt(
+            (cos_u2 * sin_lambda)**2 
+            + (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda)**2)
+        cos_sigma = (
+            sin_u1 * sin_u2 
+            + cos_u1 * cos_u2 * cos_lambda)
         sigma = np.arctan(sin_sigma / cos_sigma)
         # alpha
-        sin_alpha = (cos_u1 * cos_u2 * sin_lambda) / sin_sigma
+        sin_alpha = cos_u1 * cos_u2 * sin_lambda / sin_sigma
         cos_alpha_sq = 1 - sin_alpha**2
         # 2 * sigma
-        cos_2sigma_m = cos_sigma - (2 * sin_u1 * sin_u2) / cos_alpha_sq
-        # c
-        c = f / 16 * cos_alpha_sq * (4 + f * (4 - 3 * cos_alpha_sq))
+        cos_2sigma_m = cos_sigma - 2 * sin_u1 * sin_u2 / cos_alpha_sq
+        # C
+        C = f / 16 * cos_alpha_sq * (4 + f * (4 - 3 * cos_alpha_sq))
         # lambda1
         lambda1 = (
             delta_lon
-            + (1 - c) * f * sin_alpha
-            * (sigma + c * sin_sigma * (cos_2sigma_m + c * cos_sigma * (-1 + 2 * cos_2sigma_m**2)))
+            + (1 - C) * f * sin_alpha
+                * (sigma + C * sin_sigma * (cos_2sigma_m + C * cos_sigma * (-1 + 2 * cos_2sigma_m**2)))
         )
         i += 1
     # Final
@@ -66,3 +80,4 @@ def vincenty(latlon0=None, latlon1=None, tol=1e-12, max_iter=100):
     )
     s = b * A * (sigma - sigma_diff)
     return s
+

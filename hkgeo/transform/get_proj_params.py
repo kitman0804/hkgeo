@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Reference:
 https://www.geodetic.gov.hk/smo/gsi/data/pdf/explanatorynotes.pdf

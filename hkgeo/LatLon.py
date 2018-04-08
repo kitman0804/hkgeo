@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .geometry import Angle
 from . import settings
 
@@ -15,15 +13,23 @@ class LatLon(object):
     """
     
     def __init__(self, lat=0, lon=0):
-        self._lat = Angle(lat, unit='d')
-        self._lon = Angle(lon, unit='d')
+        if isinstance(lat, Angle):
+            self._lat = lat.to_deg()
+        elif isinstance(lat, (int, float)):
+            self._lat = Angle(lat, unit='deg')
+        else:
+            raise TypeError('lat must be an Angle, int or float.')
+        if isinstance(lon, Angle):
+            self._lon = lon.to_deg()
+        elif isinstance(lon, (int, float)):
+            self._lon = Angle(lon, unit='deg')
+        else:
+            raise TypeError('lon must be an Angle, int or float.')
     
     def __repr__(self):
-        print_text = '({:}N, {:}E)'
-        print_text = print_text.format(
-            round(self.lat, settings.N_DIGITS),
-            round(self.lon, settings.N_DIGITS)
-        )
+        print_text = '({:}N, {:}E)'.format(
+            round(self._lat, settings.N_DIGITS),
+            round(self._lon, settings.N_DIGITS))
         return print_text
     
     @property
@@ -35,7 +41,7 @@ class LatLon(object):
         return self._lon
     
     def __eq__(self, other):
-        if isinstance(self, LatLon):
+        if isinstance(self, type(self)):
             return (self.lat == other.lat) & (self.lon == other.lon)
         else:
             return False
@@ -48,12 +54,10 @@ class LatLon(object):
     
     @property
     def compass(self):
-        print_text = '{:}{:}, {:}{:}'
-        print_text = print_text.format(
+        print_text = '{:}{:}, {:}{:}'.format(
             abs(self._lat), 'N' if self._lat < 0 else 'S',
-            abs(self._lon), 'W' if self._lon < 0 else 'E'
-        )
+            abs(self._lon), 'W' if self._lon < 0 else 'E')
         return print_text
     
     def to_tuple(self):
-        return (self.lat.degree, self.lon.degree)
+        return (self._lat.degree, self._lon.degree)

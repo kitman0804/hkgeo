@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
+from .Angle import Angle, Radian, Degree
 
-from .Angle import Angle
 
-__all__ = ['Angle']
+__all__ = ['Angle', 'Radian', 'Degree']
 

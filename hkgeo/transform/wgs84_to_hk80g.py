@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .wgs84_to_hk80 import wgs84_to_hk80
 from .hk80_to_hk80g import hk80_to_hk80g
 
