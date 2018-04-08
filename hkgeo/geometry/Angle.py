@@ -54,9 +54,9 @@ class Angle(object):
     
     @property
     def dms(self):
-        d = np.trunc(self._value)
-        m = np.trunc((self._value - d) * 60)
-        s = (self._value - d - m / 60) * 3600
+        d = np.trunc(self.degree)
+        m = np.trunc((self.degree - d) * 60)
+        s = (self.degree - d - m / 60) * 3600
         return (d, m, s)
     
     def to_rad(self):

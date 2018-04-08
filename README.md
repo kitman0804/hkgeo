@@ -2,8 +2,9 @@
 
 *version 0.1.1*
 
-- Coordinates coversion (HK80, HK80G, WGS84).
+- Geodetic Datum Transformation between HK80, HK80G and WGS84.
 - OSM data download through [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API).
+
 
 ---
 
@@ -15,10 +16,11 @@ System requirement:
   - [www.python.org](https://www.python.org/downloads/)
 
 Required packages:
-- [Scipy](https://www.scipy.org/)
-- [Numpy](http://www.numpy.org/)
+- [scipy](https://www.scipy.org/)
+- [numpy](http://www.numpy.org/)
 - [requests](http://docs.python-requests.org/en/master/)
 - [json](https://docs.python.org/3.6/library/json.html) (Python standard library)
+
 
 ### Installation
 
@@ -39,6 +41,7 @@ pip install git+https://github.com/kitman0804/hkgeo.git
 ```
 python setup.py install
 ```
+
 
 ---
 
@@ -67,3 +70,13 @@ distance.vincenty(LatLon(-37, 144), LatLon(-37, 143))
 distance.vincenty((50, 5), (58, 3))
 # 899937.70573241916
 ```
+
+
+---
+
+### Reference
+
+- [https://en.wikipedia.org/wiki/Vincenty's_formulae](https://en.wikipedia.org/wiki/Vincenty%27s_formulae)
+- [https://en.wikipedia.org/wiki/Haversine_formula](https://en.wikipedia.org/wiki/Haversine_formula)
+- [https://www.geodetic.gov.hk/smo/gsi/data/pdf/explanatorynotes.pdf](https://www.geodetic.gov.hk/smo/gsi/data/pdf/explanatorynotes.pdf)
+
